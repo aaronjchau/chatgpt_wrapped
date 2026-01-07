@@ -1,0 +1,32 @@
+{
+    "name": "ChatGPT Wrapped", 
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",                           
+                "ms-python.vscode-pylance",                  // python language server
+                "ms-python.debugpy",                         // python debugging
+                "charliermarsh.ruff",                        // auto-format code on save
+                "streetsidesoftware.code-spell-checker",     // spell checking
+                "christian-kohler.path-intellisense",        // auto-fills filepaths
+                "njpwerner.autodocstring"                    // generates docstring template
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "jupyter.interactiveWindow.textEditor.executeSelection": true,  // interactive shell in scripts
+                "python.analysis.inlayHints.callArgumentNames": "partial",      // inlay hints in function parameters
+                "python.analysis.inlayHints.functionReturnTypes": true,         // inlay hints to show function return types
+                "python.analysis.inlayHints.variableTypes": true,               // inlay hints to show variable types
+                "python.analysis.typeCheckingMode": "standard",                 // type checking by pylance
+                "editor.defaultFormatter": "charliermarsh.ruff",                // use ruff for auto formatting
+                "editor.formatOnSave": true                                    // save to trigger ruff formatting
+            }
+        }
+    },
+    "postCreateCommand": "uv sync",
+    "remoteUser": "root"
+}

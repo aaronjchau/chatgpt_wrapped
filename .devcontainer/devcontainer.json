@@ -16,7 +16,7 @@
                 "njpwerner.autodocstring"                    // generates docstring template
             ],
             "settings": {
-                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
                 "jupyter.interactiveWindow.textEditor.executeSelection": true,  // interactive shell in scripts
                 "python.analysis.inlayHints.callArgumentNames": "partial",      // inlay hints in function parameters
                 "python.analysis.inlayHints.functionReturnTypes": true,         // inlay hints to show function return types

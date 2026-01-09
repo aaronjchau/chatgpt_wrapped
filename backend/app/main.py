@@ -1,8 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
+from app.api.routes import upload
 
 app = FastAPI(title="ChatGPT Wrapped")
 
-
-@app.get("/")
-def root():
-    return {"status": "running"}
+app.include_router(upload.router)

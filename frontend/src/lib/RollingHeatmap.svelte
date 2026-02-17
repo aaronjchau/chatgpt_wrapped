@@ -94,7 +94,7 @@
           {#each week as day}
             {#if day}
               <div
-                class="h-3 w-3 rounded-sm"
+                class="h-3 w-3 rounded-sm transition-transform hover:scale-125 cursor-pointer"
                 style={`background-color: ${cellColor(day.count, maxCount)}`}
                 title={tooltip(day)}
               ></div>

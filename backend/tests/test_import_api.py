@@ -59,9 +59,10 @@ def test_import_valid_conversations_file():
     assert body["meta"]["conversations_received"] == 1
 
     time_stats = body["time_stats"]
-    assert time_stats["msgs_sent_by_hour"]["13"] == 1
+    assert time_stats["msgs_sent_by_hour"]["8"] == 1
     assert time_stats["msgs_sent_by_day"]["Monday"] == 1
     assert time_stats["msgs_sent_by_month"]["January"] == 1
+    assert time_stats["msgs_sent_by_year"]["2025"] == 1
     assert len(time_stats["rolling_12_months"]["daily_counts"]) == 365
     assert time_stats["rolling_12_months"]["end_date"] == "2025-01-06"
 

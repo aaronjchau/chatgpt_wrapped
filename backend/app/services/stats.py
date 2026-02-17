@@ -47,6 +47,8 @@ months_of_year = [
     "December",
 ]
 
+est_timezone = timezone(timedelta(hours=-5))
+
 
 def reset_stats():
     global_stats["total_convos"] = 0
@@ -133,15 +135,17 @@ def compute_time_stats(message):
         return
 
     try:
-        message_time = datetime.fromtimestamp(float(create_time), tz=timezone.utc)
+        message_time_utc = datetime.fromtimestamp(float(create_time), tz=timezone.utc)
     except (ValueError, TypeError, OSError, OverflowError):
         return
 
-    hour = str(message_time.hour)
-    day = days_of_week[message_time.weekday()]
-    month = months_of_year[message_time.month - 1]
-    year = str(message_time.year)
-    date = message_time.date().isoformat()
+    message_time_est = message_time_utc.astimezone(est_timezone)
+
+    hour = str(message_time_est.hour)
+    day = days_of_week[message_time_est.weekday()]
+    month = months_of_year[message_time_est.month - 1]
+    year = str(message_time_est.year)
+    date = message_time_est.date().isoformat()
 
     msgs_sent_by_hour[hour] += 1
     msgs_sent_by_day[day] += 1
@@ -154,7 +158,7 @@ def compute_rolling_12_months():
     if msgs_sent_by_date:
         end_date = datetime.fromisoformat(max(msgs_sent_by_date)).date()
     else:
-        end_date = datetime.now(timezone.utc).date()
+        end_date = datetime.now(est_timezone).date()
 
     start_date = end_date - timedelta(days=364)
     daily_counts = []

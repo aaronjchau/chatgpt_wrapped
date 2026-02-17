@@ -3,6 +3,20 @@
   import RollingHeatmap from './lib/RollingHeatmap.svelte'
 
   const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+  const globalStatOrder = [
+    'total_convos',
+    'total_msgs_sent',
+    'total_msgs_recd',
+    'total_words_sent',
+    'total_words_recd',
+  ]
+  const globalStatLabels = {
+    total_convos: 'Total Conversations',
+    total_msgs_sent: 'Total Messages Sent',
+    total_msgs_recd: 'Total Messages Received',
+    total_words_sent: 'Total Words Sent',
+    total_words_recd: 'Total Words Received',
+  }
   const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const monthOrder = [
     'January',
@@ -24,16 +38,47 @@
   let error = ''
   let result = null
 
+  function humanizeKey(key) {
+    return key
+      .replaceAll('_', ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+  }
+
+  function formatHourLabel(hour) {
+    const hourNumber = Number(hour)
+    const suffix = hourNumber >= 12 ? 'PM' : 'AM'
+    const normalized = hourNumber % 12
+    const displayHour = normalized === 0 ? 12 : normalized
+    return `${displayHour} ${suffix}`
+  }
+
   $: selectedFileName = file?.name ?? 'No file selected'
   $: canImport = Boolean(file) && !isLoading
-  $: globalRows = result ? Object.entries(result.global_stats) : []
+  $: globalRows = result
+    ? [
+        ...globalStatOrder
+          .filter((key) => key in (result.global_stats ?? {}))
+          .map((key) => ({
+            key,
+            label: globalStatLabels[key] ?? humanizeKey(key),
+            value: result.global_stats[key],
+          })),
+        ...Object.entries(result.global_stats ?? {})
+          .filter(([key]) => !globalStatOrder.includes(key))
+          .map(([key, value]) => ({
+            key,
+            label: humanizeKey(key),
+            value,
+          })),
+      ]
+    : []
   $: modelRows = result
     ? Object.entries(result.model_stats).sort(([, a], [, b]) => b - a)
     : []
   $: timeStats = result?.time_stats ?? null
   $: hourRows = timeStats
     ? Array.from({ length: 24 }, (_, hour) => [
-        `${String(hour).padStart(2, '0')}:00`,
+        formatHourLabel(hour),
         timeStats.msgs_sent_by_hour?.[String(hour)] ?? 0,
       ])
     : []
@@ -42,6 +87,9 @@
     : []
   $: monthRows = timeStats
     ? monthOrder.map((monthName) => [monthName.slice(0, 3), timeStats.msgs_sent_by_month?.[monthName] ?? 0])
+    : []
+  $: yearRows = timeStats
+    ? Object.entries(timeStats.msgs_sent_by_year ?? {}).sort(([a], [b]) => Number(a) - Number(b))
     : []
   $: rolling12Months = timeStats?.rolling_12_months ?? null
   $: rollingDailyRows = rolling12Months?.daily_counts ?? []
@@ -123,10 +171,10 @@
         <div>
           <h2 class="text-lg font-semibold">Global Stats</h2>
           <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {#each globalRows as [key, value]}
+            {#each globalRows as row}
               <article class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                <p class="text-xs uppercase tracking-wide text-slate-500">{key}</p>
-                <p class="mt-1 text-xl font-semibold text-slate-900">{value.toLocaleString()}</p>
+                <p class="text-xs uppercase tracking-wide text-slate-500">{row.label}</p>
+                <p class="mt-1 text-xl font-semibold text-slate-900">{row.value.toLocaleString()}</p>
               </article>
             {/each}
           </div>
@@ -144,11 +192,11 @@
         </div>
 
         <div>
-          <h2 class="text-lg font-semibold">Message Timing (UTC)</h2>
+          <h2 class="text-lg font-semibold">Message Timing (EST)</h2>
           {#if !timeStats}
             <p class="mt-3 text-sm text-slate-600">No time stats found.</p>
           {:else}
-            <div class="mt-3 grid gap-4 lg:grid-cols-3">
+            <div class="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <article class="rounded-lg border border-slate-200 bg-white p-3">
                 <h3 class="text-sm font-semibold text-slate-700">By Hour of Day</h3>
                 <div class="mt-2">
@@ -184,15 +232,32 @@
                   />
                 </div>
               </article>
+
+              <article class="rounded-lg border border-slate-200 bg-white p-3">
+                <h3 class="text-sm font-semibold text-slate-700">By Year</h3>
+                <div class="mt-2">
+                  {#if yearRows.length === 0}
+                    <p class="text-sm text-slate-600">No year stats found.</p>
+                  {:else}
+                    <ModelUsageChart
+                      rows={yearRows}
+                      datasetLabel="Messages sent"
+                      barColor="#0f766e"
+                      heightClass="h-56"
+                    />
+                  {/if}
+                </div>
+              </article>
             </div>
 
             <article class="mt-4 rounded-lg border border-slate-200 bg-white p-3">
-              <h3 class="text-sm font-semibold text-slate-700">Rolling 12-Month Heatmap (GitHub Style)</h3>
+              <h3 class="text-sm font-semibold text-slate-700">Rolling 12-Month Heatmap</h3>
               {#if rolling12Months?.start_date && rolling12Months?.end_date}
                 <p class="mt-1 text-xs text-slate-500">
                   {rolling12Months.start_date} to {rolling12Months.end_date}
                 </p>
               {/if}
+              <p class="mt-1 text-xs text-slate-500">Hover a square to see daily message count.</p>
               <div class="mt-3">
                 <RollingHeatmap days={rollingDailyRows} />
               </div>

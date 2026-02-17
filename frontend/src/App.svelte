@@ -133,48 +133,48 @@
   }
 </script>
 
-<main class="min-h-screen bg-slate-100 px-4 py-12 text-slate-900">
-  <section class="mx-auto w-full max-w-5xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+<main class="min-h-screen bg-slate-950 px-4 py-12 text-slate-100">
+  <section class="mx-auto w-full max-w-5xl rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-xl shadow-black/20">
     <h1 class="text-2xl font-semibold">ChatGPT Wrapped</h1>
-    <p class="mt-2 text-sm text-slate-600">Import your local conversations export and analyze it on localhost.</p>
+    <p class="mt-2 text-sm text-slate-400">Import your local conversations export and analyze it on localhost.</p>
 
     <form on:submit={onSubmit} class="mt-6 space-y-3">
       <div class="space-y-2">
-        <label for="file" class="text-sm font-medium text-slate-700">conversations.json</label>
+        <label for="file" class="text-sm font-medium text-slate-300">conversations.json</label>
         <input
           id="file"
           type="file"
           accept=".json,application/json"
-          class="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+          class="block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
           on:change={onFileChange}
         />
-        <p class="text-sm text-slate-600">{selectedFileName}</p>
+        <p class="text-sm text-slate-400">{selectedFileName}</p>
       </div>
 
       <button
         type="submit"
         disabled={!canImport}
-        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        class="rounded-lg bg-teal-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLoading ? 'Analyzing...' : 'Import + Analyze'}
       </button>
     </form>
 
     {#if error}
-      <p class="mt-4 text-sm font-semibold text-red-700">{error}</p>
+      <p class="mt-4 text-sm font-semibold text-red-400">{error}</p>
     {/if}
 
     {#if result}
-      <p class="mt-4 text-sm font-semibold text-emerald-700">Import complete. Results loaded.</p>
+      <p class="mt-4 text-sm font-semibold text-emerald-400">Import complete. Results loaded.</p>
 
       <section class="mt-8 space-y-8">
         <div>
           <h2 class="text-lg font-semibold">Global Stats</h2>
           <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {#each globalRows as row}
-              <article class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                <p class="text-xs uppercase tracking-wide text-slate-500">{row.label}</p>
-                <p class="mt-1 text-xl font-semibold text-slate-900">{row.value.toLocaleString()}</p>
+              <article class="rounded-lg border border-slate-800 bg-slate-950 p-3">
+                <p class="text-xs uppercase tracking-wide text-slate-400">{row.label}</p>
+                <p class="mt-1 text-xl font-semibold text-slate-100">{row.value.toLocaleString()}</p>
               </article>
             {/each}
           </div>
@@ -183,10 +183,16 @@
         <div>
           <h2 class="text-lg font-semibold">Model Usage</h2>
           {#if modelRows.length === 0}
-            <p class="mt-3 text-sm text-slate-600">No model stats found.</p>
+            <p class="mt-3 text-sm text-slate-400">No model stats found.</p>
           {:else}
-            <div class="mt-3 rounded-lg border border-slate-200 bg-white p-3">
-              <ModelUsageChart rows={modelRows} datasetLabel="Assistant messages" />
+            <div class="mt-3 rounded-lg border border-slate-800 bg-slate-900 p-3">
+              <ModelUsageChart
+                rows={modelRows}
+                datasetLabel="Assistant messages"
+                barColor="#38bdf8"
+                axisTickColor="#cbd5e1"
+                gridColor="rgba(148, 163, 184, 0.18)"
+              />
             </div>
           {/if}
         </div>
@@ -194,70 +200,78 @@
         <div>
           <h2 class="text-lg font-semibold">Message Timing (EST)</h2>
           {#if !timeStats}
-            <p class="mt-3 text-sm text-slate-600">No time stats found.</p>
+            <p class="mt-3 text-sm text-slate-400">No time stats found.</p>
           {:else}
             <div class="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <article class="rounded-lg border border-slate-200 bg-white p-3">
-                <h3 class="text-sm font-semibold text-slate-700">By Hour of Day</h3>
+              <article class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+                <h3 class="text-sm font-semibold text-slate-200">By Hour of Day</h3>
                 <div class="mt-2">
                   <ModelUsageChart
                     rows={hourRows}
                     datasetLabel="Messages sent"
-                    barColor="#0f766e"
+                    barColor="#2dd4bf"
                     heightClass="h-56"
+                    axisTickColor="#cbd5e1"
+                    gridColor="rgba(148, 163, 184, 0.18)"
                   />
                 </div>
               </article>
 
-              <article class="rounded-lg border border-slate-200 bg-white p-3">
-                <h3 class="text-sm font-semibold text-slate-700">By Day of Week</h3>
+              <article class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+                <h3 class="text-sm font-semibold text-slate-200">By Day of Week</h3>
                 <div class="mt-2">
                   <ModelUsageChart
                     rows={dayRows}
                     datasetLabel="Messages sent"
-                    barColor="#0f766e"
+                    barColor="#2dd4bf"
                     heightClass="h-56"
+                    axisTickColor="#cbd5e1"
+                    gridColor="rgba(148, 163, 184, 0.18)"
                   />
                 </div>
               </article>
 
-              <article class="rounded-lg border border-slate-200 bg-white p-3">
-                <h3 class="text-sm font-semibold text-slate-700">By Month of Year</h3>
+              <article class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+                <h3 class="text-sm font-semibold text-slate-200">By Month of Year</h3>
                 <div class="mt-2">
                   <ModelUsageChart
                     rows={monthRows}
                     datasetLabel="Messages sent"
-                    barColor="#0f766e"
+                    barColor="#2dd4bf"
                     heightClass="h-56"
+                    axisTickColor="#cbd5e1"
+                    gridColor="rgba(148, 163, 184, 0.18)"
                   />
                 </div>
               </article>
 
-              <article class="rounded-lg border border-slate-200 bg-white p-3">
-                <h3 class="text-sm font-semibold text-slate-700">By Year</h3>
+              <article class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+                <h3 class="text-sm font-semibold text-slate-200">By Year</h3>
                 <div class="mt-2">
                   {#if yearRows.length === 0}
-                    <p class="text-sm text-slate-600">No year stats found.</p>
+                    <p class="text-sm text-slate-400">No year stats found.</p>
                   {:else}
                     <ModelUsageChart
                       rows={yearRows}
                       datasetLabel="Messages sent"
-                      barColor="#0f766e"
+                      barColor="#2dd4bf"
                       heightClass="h-56"
+                      axisTickColor="#cbd5e1"
+                      gridColor="rgba(148, 163, 184, 0.18)"
                     />
                   {/if}
                 </div>
               </article>
             </div>
 
-            <article class="mt-4 rounded-lg border border-slate-200 bg-white p-3">
-              <h3 class="text-sm font-semibold text-slate-700">Rolling 12-Month Heatmap</h3>
+            <article class="mt-4 rounded-lg border border-slate-800 bg-slate-900 p-3">
+              <h3 class="text-sm font-semibold text-slate-200">Rolling 12-Month Heatmap</h3>
               {#if rolling12Months?.start_date && rolling12Months?.end_date}
-                <p class="mt-1 text-xs text-slate-500">
+                <p class="mt-1 text-xs text-slate-400">
                   {rolling12Months.start_date} to {rolling12Months.end_date}
                 </p>
               {/if}
-              <p class="mt-1 text-xs text-slate-500">Hover a square to see daily message count.</p>
+              <p class="mt-1 text-xs text-slate-400">Hover a square to see daily message count.</p>
               <div class="mt-3">
                 <RollingHeatmap days={rollingDailyRows} />
               </div>

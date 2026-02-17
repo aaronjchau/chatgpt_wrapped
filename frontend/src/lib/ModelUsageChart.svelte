@@ -12,7 +12,14 @@
 
   Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend, Tooltip)
 
-  let { rows = [], datasetLabel = 'Messages', barColor = '#0f172a', heightClass = 'h-72' } = $props()
+  let {
+    rows = [],
+    datasetLabel = 'Messages',
+    barColor = '#2dd4bf',
+    heightClass = 'h-72',
+    axisTickColor = '#cbd5e1',
+    gridColor = 'rgba(148, 163, 184, 0.2)',
+  } = $props()
 
   let chart
   let canvas
@@ -55,12 +62,20 @@
             ticks: {
               maxRotation: 45,
               minRotation: 0,
+              color: axisTickColor,
+            },
+            grid: {
+              color: gridColor,
             },
           },
           y: {
             beginAtZero: true,
             ticks: {
               precision: 0,
+              color: axisTickColor,
+            },
+            grid: {
+              color: gridColor,
             },
           },
         },

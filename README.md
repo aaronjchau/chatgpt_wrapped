@@ -19,6 +19,14 @@ Open:
 - Backend: FastAPI API (`backend/app`)
 - Orchestration: Docker Compose (`docker-compose.yml`)
 
+Dashboard includes:
+
+- Global summary cards
+- Model usage bar chart
+- Message timing charts (EST): hour, day of week, month, year
+- Rolling 12-month heatmap with hover tooltips per day
+- Dark mode dashboard styling
+
 ## API Shape
 
 `POST /api/v1/import/conversations`
@@ -34,6 +42,14 @@ Success response includes:
 - `model_stats`
 - `time_stats`
 - `meta`
+
+`time_stats` currently includes:
+
+- `msgs_sent_by_hour` (0-23, EST)
+- `msgs_sent_by_day`
+- `msgs_sent_by_month`
+- `msgs_sent_by_year`
+- `rolling_12_months` (`start_date`, `end_date`, `daily_counts`)
 
 ## Local Dev (No Docker)
 
@@ -70,3 +86,4 @@ npm test
 
 - Dependency lock files are committed for reproducible installs.
 - This MVP is local-only and does not persist imported data.
+- Frontend is intentionally minimal and library-driven (Chart.js + Tailwind).

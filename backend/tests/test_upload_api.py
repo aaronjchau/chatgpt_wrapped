@@ -33,6 +33,17 @@ def test_upload_valid_conversations_file():
     assert body["meta"]["conversations_received"] > 0
 
 
+def test_upload_includes_cors_header_for_local_frontend():
+    response = client.post(
+        "/api/v1/upload/conversations",
+        files={"file": ("conversations.json", b"[]", "application/json")},
+        headers={"Origin": "http://localhost:3000"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
 def test_upload_rejects_wrong_filename():
     response = client.post(
         "/api/v1/upload/conversations",

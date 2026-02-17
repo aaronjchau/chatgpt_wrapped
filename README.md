@@ -1,21 +1,6 @@
 # ChatGPT Wrapped (Local-Only MVP)
 
-Simple web app for analyzing `conversations.json` from your own ChatGPT export.
-
-This MVP is intentionally straightforward so it is easy to read, modify, and learn from.
-
-## Privacy Model
-
-- Local-only by default.
-- Backend and frontend run on `localhost`.
-- Uploads are processed in memory and not persisted to a database.
-- No hosted upload flow is included in this MVP.
-
-## Architecture
-
-- Backend: FastAPI (`backend/app`)
-- Frontend: React + TypeScript + Vite (`frontend`)
-- Startup: Docker Compose (`docker-compose.yml`)
+Local web app that analyzes ChatGPT export data from `conversations.json`.
 
 ## Quick Start (Docker)
 
@@ -23,35 +8,33 @@ This MVP is intentionally straightforward so it is easy to read, modify, and lea
 docker compose up --build
 ```
 
-Then open:
+Open:
 
 - Frontend: `http://localhost:3000`
 - Backend health: `http://localhost:8000/api/v1/health`
 
-## Devcontainer + uv Workflow
+## Architecture
 
-From repo root:
+- Frontend: React + TypeScript app, built with Vite and served by Nginx (`frontend/`)
+- Backend: FastAPI API (`backend/app`)
+- Orchestration: Docker Compose (`docker-compose.yml`)
 
-```bash
-uv sync
-```
+## API Shape
 
-## API
-
-### `POST /api/v1/upload/conversations`
+`POST /api/v1/upload/conversations`
 
 - Content type: `multipart/form-data`
 - Field: `file`
-- Filename expected in MVP: `conversations.json`
+- Expected filename: `conversations.json`
 
-Successful response includes:
+Success response includes:
 
 - `global_stats`
 - `conversation_stats`
 - `model_stats`
 - `meta`
 
-## Local Dev (Without Docker)
+## Local Dev (No Docker)
 
 Backend (from repo root):
 
@@ -59,31 +42,30 @@ Backend (from repo root):
 PYTHONPATH=backend uv run uvicorn app.main:app --reload
 ```
 
-Frontend (from `frontend/`):
+Frontend:
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
 ## Tests
 
-Backend tests:
+Backend:
 
 ```bash
 PYTHONPATH=backend uv run pytest backend/tests
 ```
 
-Frontend tests:
+Frontend:
 
 ```bash
 cd frontend
-npm install
-npm run test
+npm test
 ```
 
-## Suggested Git Workflow
+## Notes
 
-1. Create feature branch.
-2. Make small commits by concern (backend route, validation, frontend UI, Docker, tests/docs).
-3. Open one PR with those commits when ready.
+- Dependency lock files are committed for reproducible installs.
+- Deeper personal architecture notes live in `README_PRIVATE.md` (gitignored).

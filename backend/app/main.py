@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from app.api.routes import upload
 
 app = FastAPI(title="ChatGPT Wrapped")

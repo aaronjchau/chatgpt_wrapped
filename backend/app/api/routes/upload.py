@@ -1,26 +1,23 @@
-# from fastapi import APIRouter, HTTPException, UploadFile
-from pprint import pprint
+from fastapi import APIRouter
+
 from app.services import parser, stats
 
-# router = APIRouter()
+router = APIRouter(prefix="/api/v1", tags=["upload"])
 
 
-# # route to import conversations.json and generate stats and plots
-# @router.post("/upload")
-# async def upload(file: UploadFile):
+@router.get("/health")
+def health():
+    return {"status": "ok"}
 
 
-# read in my json conversations
-data = parser.load_conversations()
+@router.post("/upload/conversations")
+def upload_conversations():
+    data = parser.load_conversations()
+    all_messages = parser.parse(data)
+    global_stats, conversation_stats, model_stats = stats.compute_stats(all_messages)
 
-# compute a list of dicts, with 1 dict for each message
-all_messages = parser.parse(data)
-
-global_stats, conversation_stats, model_stats = stats.compute_stats(all_messages)
-
-pprint(global_stats)
-print()
-# pprint(conversation_stats)
-# print()
-pprint(model_stats)
-print()
+    return {
+        "global_stats": global_stats,
+        "conversation_stats": conversation_stats,
+        "model_stats": model_stats,
+    }

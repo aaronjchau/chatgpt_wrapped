@@ -12,7 +12,7 @@
 
   Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend, Tooltip)
 
-  let { rows = [] } = $props()
+  let { rows = [], datasetLabel = 'Messages', barColor = '#0f172a', heightClass = 'h-72' } = $props()
 
   let chart
   let canvas
@@ -24,6 +24,8 @@
 
     chart.data.labels = rows.map(([modelId]) => modelId)
     chart.data.datasets[0].data = rows.map(([, count]) => count)
+    chart.data.datasets[0].label = datasetLabel
+    chart.data.datasets[0].backgroundColor = barColor
     chart.update()
   }
 
@@ -34,9 +36,9 @@
         labels: [],
         datasets: [
           {
-            label: 'Messages',
+            label: datasetLabel,
             data: [],
-            backgroundColor: '#0f172a',
+            backgroundColor: barColor,
           },
         ],
       },
@@ -49,6 +51,12 @@
           },
         },
         scales: {
+          x: {
+            ticks: {
+              maxRotation: 45,
+              minRotation: 0,
+            },
+          },
           y: {
             beginAtZero: true,
             ticks: {
@@ -71,6 +79,6 @@
   })
 </script>
 
-<div class="h-72">
+<div class={heightClass}>
   <canvas bind:this={canvas}></canvas>
 </div>

@@ -1,7 +1,23 @@
 <script>
   import ModelUsageChart from './lib/ModelUsageChart.svelte'
+  import RollingHeatmap from './lib/RollingHeatmap.svelte'
 
   const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+  const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const monthOrder = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ]
 
   let file = null
   let isLoading = false
@@ -14,6 +30,21 @@
   $: modelRows = result
     ? Object.entries(result.model_stats).sort(([, a], [, b]) => b - a)
     : []
+  $: timeStats = result?.time_stats ?? null
+  $: hourRows = timeStats
+    ? Array.from({ length: 24 }, (_, hour) => [
+        `${String(hour).padStart(2, '0')}:00`,
+        timeStats.msgs_sent_by_hour?.[String(hour)] ?? 0,
+      ])
+    : []
+  $: dayRows = timeStats
+    ? dayOrder.map((dayName) => [dayName.slice(0, 3), timeStats.msgs_sent_by_day?.[dayName] ?? 0])
+    : []
+  $: monthRows = timeStats
+    ? monthOrder.map((monthName) => [monthName.slice(0, 3), timeStats.msgs_sent_by_month?.[monthName] ?? 0])
+    : []
+  $: rolling12Months = timeStats?.rolling_12_months ?? null
+  $: rollingDailyRows = rolling12Months?.daily_counts ?? []
 
   function onFileChange(event) {
     file = event.currentTarget.files?.[0] ?? null
@@ -107,8 +138,65 @@
             <p class="mt-3 text-sm text-slate-600">No model stats found.</p>
           {:else}
             <div class="mt-3 rounded-lg border border-slate-200 bg-white p-3">
-              <ModelUsageChart rows={modelRows} />
+              <ModelUsageChart rows={modelRows} datasetLabel="Assistant messages" />
             </div>
+          {/if}
+        </div>
+
+        <div>
+          <h2 class="text-lg font-semibold">Message Timing (UTC)</h2>
+          {#if !timeStats}
+            <p class="mt-3 text-sm text-slate-600">No time stats found.</p>
+          {:else}
+            <div class="mt-3 grid gap-4 lg:grid-cols-3">
+              <article class="rounded-lg border border-slate-200 bg-white p-3">
+                <h3 class="text-sm font-semibold text-slate-700">By Hour of Day</h3>
+                <div class="mt-2">
+                  <ModelUsageChart
+                    rows={hourRows}
+                    datasetLabel="Messages sent"
+                    barColor="#0f766e"
+                    heightClass="h-56"
+                  />
+                </div>
+              </article>
+
+              <article class="rounded-lg border border-slate-200 bg-white p-3">
+                <h3 class="text-sm font-semibold text-slate-700">By Day of Week</h3>
+                <div class="mt-2">
+                  <ModelUsageChart
+                    rows={dayRows}
+                    datasetLabel="Messages sent"
+                    barColor="#0f766e"
+                    heightClass="h-56"
+                  />
+                </div>
+              </article>
+
+              <article class="rounded-lg border border-slate-200 bg-white p-3">
+                <h3 class="text-sm font-semibold text-slate-700">By Month of Year</h3>
+                <div class="mt-2">
+                  <ModelUsageChart
+                    rows={monthRows}
+                    datasetLabel="Messages sent"
+                    barColor="#0f766e"
+                    heightClass="h-56"
+                  />
+                </div>
+              </article>
+            </div>
+
+            <article class="mt-4 rounded-lg border border-slate-200 bg-white p-3">
+              <h3 class="text-sm font-semibold text-slate-700">Rolling 12-Month Heatmap (GitHub Style)</h3>
+              {#if rolling12Months?.start_date && rolling12Months?.end_date}
+                <p class="mt-1 text-xs text-slate-500">
+                  {rolling12Months.start_date} to {rolling12Months.end_date}
+                </p>
+              {/if}
+              <div class="mt-3">
+                <RollingHeatmap days={rollingDailyRows} />
+              </div>
+            </article>
           {/if}
         </div>
       </section>

@@ -5,7 +5,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from app.services import parser, stats
 
 router = APIRouter(prefix="/api/v1", tags=["upload"])
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+MAX_UPLOAD_BYTES = 250 * 1024 * 1024
 
 
 @router.get("/health")
@@ -14,7 +14,9 @@ def health():
 
 
 @router.post("/upload/conversations")
-async def upload_conversations(file: UploadFile = File(...)):
+async def upload_conversations(
+    file: UploadFile = File(...),
+):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided.")
     if file.filename != "conversations.json":

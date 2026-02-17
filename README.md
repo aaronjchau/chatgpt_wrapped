@@ -32,6 +32,7 @@ Success response includes:
 - `global_stats`
 - `conversation_stats`
 - `model_stats`
+- `time_stats`
 - `meta`
 
 ## Local Dev (No Docker)

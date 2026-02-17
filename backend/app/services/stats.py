@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 global_stats = {
     "total_convos": 0,
     "total_msgs_sent": 0,
@@ -14,6 +16,36 @@ msgs_sent_by_hour = {}
 msgs_sent_by_day = {}
 msgs_sent_by_month = {}
 msgs_sent_by_year = {}
+msgs_sent_by_date = {}
+
+rolling_12_months = {}
+
+time_stats = {}
+
+days_of_week = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+
+months_of_year = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]
 
 
 def reset_stats():
@@ -24,6 +56,22 @@ def reset_stats():
     global_stats["total_words_recd"] = 0
     conversation_stats.clear()
     model_stats.clear()
+    msgs_sent_by_hour.clear()
+    msgs_sent_by_day.clear()
+    msgs_sent_by_month.clear()
+    msgs_sent_by_year.clear()
+    msgs_sent_by_date.clear()
+    rolling_12_months.clear()
+    time_stats.clear()
+
+    for hour in range(24):
+        msgs_sent_by_hour[str(hour)] = 0
+
+    for day in days_of_week:
+        msgs_sent_by_day[day] = 0
+
+    for month in months_of_year:
+        msgs_sent_by_month[month] = 0
 
 
 # compute stats for all messages
@@ -50,8 +98,15 @@ def compute_stats(all_messages_props):
 
         if message["role"] == "assistant":
             compute_ai_stats(message)
-    
-    return global_stats, conversation_stats, model_stats
+
+    compute_rolling_12_months()
+    time_stats["msgs_sent_by_hour"] = msgs_sent_by_hour
+    time_stats["msgs_sent_by_day"] = msgs_sent_by_day
+    time_stats["msgs_sent_by_month"] = msgs_sent_by_month
+    time_stats["msgs_sent_by_year"] = msgs_sent_by_year
+    time_stats["rolling_12_months"] = rolling_12_months
+
+    return global_stats, conversation_stats, model_stats, time_stats
 
 
 # compute stats for messages sent
@@ -68,6 +123,56 @@ def compute_user_stats(message):
 
     # include word count in global count
     global_stats["total_words_sent"] += word_count
+    compute_time_stats(message)
+
+
+def compute_time_stats(message):
+    create_time = message["create_time"]
+
+    if create_time is None:
+        return
+
+    try:
+        message_time = datetime.fromtimestamp(float(create_time), tz=timezone.utc)
+    except (ValueError, TypeError, OSError, OverflowError):
+        return
+
+    hour = str(message_time.hour)
+    day = days_of_week[message_time.weekday()]
+    month = months_of_year[message_time.month - 1]
+    year = str(message_time.year)
+    date = message_time.date().isoformat()
+
+    msgs_sent_by_hour[hour] += 1
+    msgs_sent_by_day[day] += 1
+    msgs_sent_by_month[month] += 1
+    msgs_sent_by_year[year] = msgs_sent_by_year.get(year, 0) + 1
+    msgs_sent_by_date[date] = msgs_sent_by_date.get(date, 0) + 1
+
+
+def compute_rolling_12_months():
+    if msgs_sent_by_date:
+        end_date = datetime.fromisoformat(max(msgs_sent_by_date)).date()
+    else:
+        end_date = datetime.now(timezone.utc).date()
+
+    start_date = end_date - timedelta(days=364)
+    daily_counts = []
+
+    current_date = start_date
+    while current_date <= end_date:
+        date_key = current_date.isoformat()
+        daily_counts.append(
+            {
+                "date": date_key,
+                "count": msgs_sent_by_date.get(date_key, 0),
+            }
+        )
+        current_date += timedelta(days=1)
+
+    rolling_12_months["start_date"] = start_date.isoformat()
+    rolling_12_months["end_date"] = end_date.isoformat()
+    rolling_12_months["daily_counts"] = daily_counts
 
 # compute stats for messages received
 def compute_ai_stats(message):

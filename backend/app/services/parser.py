@@ -1,4 +1,3 @@
-from pprint import pprint
 import json
 
 JSON_PATH = "tests/fixtures/conversations_small.json"
@@ -41,6 +40,7 @@ def parse(json_data):
             message["role"] = role
             message["text"] = text 
             message["model_id"] = model_id
+            message["create_time"] = node["message"].get("create_time")
 
             all_messages_props.append(message)
 

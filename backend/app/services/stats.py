@@ -16,8 +16,20 @@ msgs_sent_by_month = {}
 msgs_sent_by_year = {}
 
 
+def reset_stats():
+    global_stats["total_convos"] = 0
+    global_stats["total_msgs_sent"] = 0
+    global_stats["total_words_sent"] = 0
+    global_stats["total_msgs_recd"] = 0
+    global_stats["total_words_recd"] = 0
+    conversation_stats.clear()
+    model_stats.clear()
+
+
 # compute stats for all messages
 def compute_stats(all_messages_props):
+    reset_stats()
+
     for message in all_messages_props:
         convo_id = message["conversation_id"]
 

@@ -6,3 +6,4 @@ backend/tests/fixtures/
 backend/tests/explore_json.py
 backend/tests/trim_json.py
 backend/tests/filter_by_title.py
+README_PRIVATE.md

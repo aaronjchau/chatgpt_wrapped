@@ -39,9 +39,9 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 
-def test_upload_valid_conversations_file():
+def test_import_valid_conversations_file():
     response = client.post(
-        "/api/v1/upload/conversations",
+        "/api/v1/import/conversations",
         files={"file": ("conversations.json", build_valid_conversations_payload(), "application/json")},
     )
 
@@ -54,9 +54,9 @@ def test_upload_valid_conversations_file():
     assert body["meta"]["conversations_received"] == 1
 
 
-def test_upload_rejects_wrong_filename():
+def test_import_rejects_wrong_filename():
     response = client.post(
-        "/api/v1/upload/conversations",
+        "/api/v1/import/conversations",
         files={"file": ("wrong_name.json", b"[]", "application/json")},
     )
 
@@ -64,9 +64,9 @@ def test_upload_rejects_wrong_filename():
     assert "conversations.json" in response.json()["detail"]
 
 
-def test_upload_rejects_invalid_json():
+def test_import_rejects_invalid_json():
     response = client.post(
-        "/api/v1/upload/conversations",
+        "/api/v1/import/conversations",
         files={"file": ("conversations.json", b"{invalid", "application/json")},
     )
 
@@ -74,10 +74,10 @@ def test_upload_rejects_invalid_json():
     assert response.json()["detail"] == "Invalid JSON file."
 
 
-def test_upload_rejects_invalid_conversation_shape():
+def test_import_rejects_invalid_conversation_shape():
     invalid_payload = json.dumps([{"id": "abc"}]).encode("utf-8")
     response = client.post(
-        "/api/v1/upload/conversations",
+        "/api/v1/import/conversations",
         files={"file": ("conversations.json", invalid_payload, "application/json")},
     )
 
@@ -85,9 +85,9 @@ def test_upload_rejects_invalid_conversation_shape():
     assert "Invalid conversation format" in response.json()["detail"]
 
 
-def test_upload_includes_cors_header_for_local_frontend():
+def test_import_includes_cors_header_for_local_frontend():
     response = client.post(
-        "/api/v1/upload/conversations",
+        "/api/v1/import/conversations",
         files={"file": ("conversations.json", build_valid_conversations_payload(), "application/json")},
         headers={"Origin": "http://localhost:3000"},
     )

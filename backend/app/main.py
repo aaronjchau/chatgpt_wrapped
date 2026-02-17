@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import upload
+from app.api.routes import import_data
 
 app = FastAPI(title="ChatGPT Wrapped")
 
@@ -14,4 +14,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(upload.router)
+app.include_router(import_data.router)

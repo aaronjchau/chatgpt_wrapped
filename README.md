@@ -21,7 +21,7 @@ Open:
 
 ## API Shape
 
-`POST /api/v1/upload/conversations`
+`POST /api/v1/import/conversations`
 
 - Content type: `multipart/form-data`
 - Field: `file`
@@ -68,4 +68,4 @@ npm test
 ## Notes
 
 - Dependency lock files are committed for reproducible installs.
-- This MVP is local-only and does not persist uploaded data.
+- This MVP is local-only and does not persist imported data.

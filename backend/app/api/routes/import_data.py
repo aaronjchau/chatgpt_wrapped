@@ -4,8 +4,8 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.services import parser, stats
 
-router = APIRouter(prefix="/api/v1", tags=["upload"])
-MAX_UPLOAD_BYTES = 250 * 1024 * 1024
+router = APIRouter(prefix="/api/v1", tags=["import"])
+MAX_IMPORT_BYTES = 250 * 1024 * 1024
 
 
 @router.get("/health")
@@ -13,8 +13,8 @@ def health():
     return {"status": "ok"}
 
 
-@router.post("/upload/conversations")
-async def upload_conversations(
+@router.post("/import/conversations")
+async def import_conversations(
     file: UploadFile = File(...),
 ):
     if not file.filename:
@@ -26,7 +26,7 @@ async def upload_conversations(
         )
 
     raw_bytes = await file.read()
-    if len(raw_bytes) > MAX_UPLOAD_BYTES:
+    if len(raw_bytes) > MAX_IMPORT_BYTES:
         raise HTTPException(status_code=413, detail="File is too large.")
 
     try:

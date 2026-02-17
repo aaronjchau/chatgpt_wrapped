@@ -9,12 +9,11 @@
   let result = null
 
   $: selectedFileName = file?.name ?? 'No file selected'
-  $: canUpload = Boolean(file) && !isLoading
+  $: canImport = Boolean(file) && !isLoading
   $: globalRows = result ? Object.entries(result.global_stats) : []
   $: modelRows = result
     ? Object.entries(result.model_stats).sort(([, a], [, b]) => b - a)
     : []
-  $: conversationRows = result ? Object.entries(result.conversation_stats) : []
 
   function onFileChange(event) {
     file = event.currentTarget.files?.[0] ?? null
@@ -35,20 +34,20 @@
     error = ''
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/upload/conversations`, {
+      const response = await fetch(`${apiBase}/api/v1/import/conversations`, {
         method: 'POST',
         body: formData,
       })
       const payload = await response.json()
 
       if (!response.ok) {
-        throw new Error(payload?.detail ?? 'Upload failed.')
+        throw new Error(payload?.detail ?? 'Import failed.')
       }
 
       result = payload
-    } catch (uploadError) {
+    } catch (importError) {
       result = null
-      error = uploadError instanceof Error ? uploadError.message : 'Upload failed.'
+      error = importError instanceof Error ? importError.message : 'Import failed.'
     } finally {
       isLoading = false
     }
@@ -58,7 +57,7 @@
 <main class="min-h-screen bg-slate-100 px-4 py-12 text-slate-900">
   <section class="mx-auto w-full max-w-5xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
     <h1 class="text-2xl font-semibold">ChatGPT Wrapped</h1>
-    <p class="mt-2 text-sm text-slate-600">Upload your local conversations export and analyze it on localhost.</p>
+    <p class="mt-2 text-sm text-slate-600">Import your local conversations export and analyze it on localhost.</p>
 
     <form on:submit={onSubmit} class="mt-6 space-y-3">
       <div class="space-y-2">
@@ -75,10 +74,10 @@
 
       <button
         type="submit"
-        disabled={!canUpload}
+        disabled={!canImport}
         class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isLoading ? 'Analyzing...' : 'Upload + Analyze'}
+        {isLoading ? 'Analyzing...' : 'Import + Analyze'}
       </button>
     </form>
 
@@ -87,7 +86,7 @@
     {/if}
 
     {#if result}
-      <p class="mt-4 text-sm font-semibold text-emerald-700">Upload complete. Results loaded.</p>
+      <p class="mt-4 text-sm font-semibold text-emerald-700">Import complete. Results loaded.</p>
 
       <section class="mt-8 space-y-8">
         <div>
@@ -110,37 +109,6 @@
             <div class="mt-3 rounded-lg border border-slate-200 bg-white p-3">
               <ModelUsageChart rows={modelRows} />
             </div>
-          {/if}
-        </div>
-
-        <div>
-          <h2 class="text-lg font-semibold">Conversation Stats</h2>
-          <div class="mt-3 overflow-x-auto rounded-lg border border-slate-200">
-            <table class="min-w-full text-left text-sm">
-              <thead class="bg-slate-100 text-slate-700">
-                <tr>
-                  <th class="px-3 py-2 font-semibold">Conversation ID</th>
-                  <th class="px-3 py-2 font-semibold">Msgs Sent</th>
-                  <th class="px-3 py-2 font-semibold">Words Sent</th>
-                  <th class="px-3 py-2 font-semibold">Msgs Recd</th>
-                  <th class="px-3 py-2 font-semibold">Words Recd</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each conversationRows.slice(0, 25) as [conversationId, stats]}
-                  <tr class="border-t border-slate-200">
-                    <td class="px-3 py-2">{conversationId}</td>
-                    <td class="px-3 py-2">{stats.convo_msgs_sent ?? 0}</td>
-                    <td class="px-3 py-2">{stats.convo_words_sent ?? 0}</td>
-                    <td class="px-3 py-2">{stats.convo_msgs_recd ?? 0}</td>
-                    <td class="px-3 py-2">{stats.convo_words_recd ?? 0}</td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </div>
-          {#if conversationRows.length > 25}
-            <p class="mt-2 text-sm text-slate-600">Showing first 25 conversations.</p>
           {/if}
         </div>
       </section>

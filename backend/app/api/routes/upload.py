@@ -1,26 +1,57 @@
-# from fastapi import APIRouter, HTTPException, UploadFile
-from pprint import pprint
+import json
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
+
 from app.services import parser, stats
 
-# router = APIRouter()
+router = APIRouter(prefix="/api/v1", tags=["upload"])
+MAX_UPLOAD_BYTES = 250 * 1024 * 1024
 
 
-# # route to import conversations.json and generate stats and plots
-# @router.post("/upload")
-# async def upload(file: UploadFile):
+@router.get("/health")
+def health():
+    return {"status": "ok"}
 
 
-# read in my json conversations
-data = parser.load_conversations()
+@router.post("/upload/conversations")
+async def upload_conversations(
+    file: UploadFile = File(...),
+):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    if file.filename != "conversations.json":
+        raise HTTPException(
+            status_code=400,
+            detail="Expected a file named 'conversations.json'.",
+        )
 
-# compute a list of dicts, with 1 dict for each message
-all_messages = parser.parse(data)
+    raw_bytes = await file.read()
+    if len(raw_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="File is too large.")
 
-global_stats, conversation_stats, model_stats = stats.compute_stats(all_messages)
+    try:
+        data = json.loads(raw_bytes)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail="Invalid JSON file.") from exc
 
-pprint(global_stats)
-print()
-# pprint(conversation_stats)
-# print()
-pprint(model_stats)
-print()
+    if not isinstance(data, list):
+        raise HTTPException(
+            status_code=422,
+            detail="Expected top-level JSON array of conversations.",
+        )
+
+    try:
+        all_messages = parser.parse(data)
+        global_stats, conversation_stats, model_stats = stats.compute_stats(all_messages)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=f"Invalid conversation format: {exc}") from exc
+
+    return {
+        "global_stats": global_stats,
+        "conversation_stats": conversation_stats,
+        "model_stats": model_stats,
+        "meta": {
+            "conversations_received": len(data),
+            "messages_parsed": len(all_messages),
+        },
+    }

@@ -23,6 +23,10 @@
     total_words_recd: "words received",
   };
 
+  function formatCount(value) {
+    return typeof value === "number" ? value.toLocaleString() : value;
+  }
+
   function onFileSelected(event) {
     const files = event.currentTarget.files;
     selectedFile = files && files.length > 0 ? files[0] : null;
@@ -73,24 +77,26 @@
   $: rollingPoints = timeStats?.msgs_sent_rolling_12mo ?? [];
 </script>
 
-<main class="mx-auto min-h-screen max-w-5xl p-6">
-  <h1 class="text-3xl font-semibold">chatgpt wrapped</h1>
-  <p class="mt-2 text-slate-300">import your conversations.json to load your stats.</p>
+<main class="mx-auto min-h-screen w-full max-w-6xl px-4 py-8 sm:px-6">
+  <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">chatgpt wrapped</h1>
+  <p class="mt-2 max-w-2xl text-sm text-slate-300 sm:text-base">
+    import your conversations.json to load your usage stats.
+  </p>
 
-  <section class="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+  <section class="mt-8 rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/30">
     <label class="mb-2 block text-sm font-medium text-slate-200" for="import-file">
       conversations file
     </label>
     <input
       id="import-file"
-      class="block w-full cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+      class="block w-full cursor-pointer rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 text-sm text-slate-100"
       type="file"
       accept=".json,application/json"
       on:change={onFileSelected}
     />
 
     <button
-      class="mt-4 rounded-md bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+      class="mt-4 rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
       type="button"
       on:click={runImport}
       disabled={!selectedFile || isImporting}
@@ -107,21 +113,23 @@
     {/if}
 
     {#if importData}
-      <p class="mt-2 text-xs text-slate-400">
-        parsed {importData.meta.messages_parsed} messages from {importData.meta.conversations_received}
+      <p class="mt-3 text-xs text-slate-400">
+        parsed {formatCount(importData.meta.messages_parsed)} messages from {formatCount(
+          importData.meta.conversations_received
+        )}
         conversations
       </p>
     {/if}
   </section>
 
   {#if globalStatsEntries.length > 0}
-    <section class="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+    <section class="mt-6 rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/30">
       <h2 class="text-lg font-semibold text-slate-100">global stats</h2>
-      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {#each globalStatsEntries as [key, value]}
-          <article class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
-            <p class="text-xs uppercase tracking-wide text-slate-400">{GLOBAL_STAT_LABELS[key] ?? key}</p>
-            <p class="mt-1 text-2xl font-semibold text-slate-100">{value}</p>
+          <article class="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+            <p class="text-xs tracking-wide text-slate-400">{GLOBAL_STAT_LABELS[key] ?? key}</p>
+            <p class="mt-1 text-2xl font-semibold text-slate-100">{formatCount(value)}</p>
           </article>
         {/each}
       </div>

@@ -2,6 +2,8 @@ import json
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
+from app.services import parser, stats
+
 router = APIRouter(prefix="/api/v1", tags=["import"])
 MAX_IMPORT_BYTES = 250 * 1024 * 1024
 
@@ -38,4 +40,18 @@ async def import_conversations(
             detail="Expected top-level JSON array of conversations.",
         )
 
-    return {"status": "ok", "conversations_received": len(data)}
+    try:
+        all_messages = parser.parse(data)
+        global_stats, conversation_stats, model_stats = stats.compute_stats(all_messages)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=f"Invalid conversation format: {exc}") from exc
+
+    return {
+        "global_stats": global_stats,
+        "conversation_stats": conversation_stats,
+        "model_stats": model_stats,
+        "meta": {
+            "conversations_received": len(data),
+            "messages_parsed": len(all_messages),
+        },
+    }

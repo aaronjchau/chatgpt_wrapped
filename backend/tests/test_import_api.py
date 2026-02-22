@@ -96,3 +96,15 @@ def test_import_conversations_rejects_invalid_shape():
 
     assert response.status_code == 422
     assert response.json()["detail"] == "Expected top-level JSON array of conversations."
+
+
+def test_import_conversations_allows_localhost_origin():
+    headers = {
+        "Origin": "http://localhost:3000",
+        "Access-Control-Request-Method": "POST",
+    }
+
+    response = client.options("/api/v1/import/conversations", headers=headers)
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:3000"

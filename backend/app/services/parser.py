@@ -32,6 +32,7 @@ def parse(json_data):
             if not message_list: 
                 continue
             model_id = node["message"]["metadata"].get("model_slug")
+            create_time = node["message"].get("create_time")
 
             # NOTE: parts is a list that includes the string message and dicts if images are attached
             message_list_strings = [s for s in message_list if isinstance(s, str)]
@@ -41,6 +42,7 @@ def parse(json_data):
             message["role"] = role
             message["text"] = text 
             message["model_id"] = model_id
+            message["create_time"] = create_time
 
             all_messages_props.append(message)
 

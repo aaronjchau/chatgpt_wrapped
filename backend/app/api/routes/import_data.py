@@ -42,7 +42,7 @@ async def import_conversations(
 
     try:
         all_messages = parser.parse(data)
-        global_stats, conversation_stats, model_stats = stats.compute_stats(all_messages)
+        global_stats, conversation_stats, model_stats, time_stats = stats.compute_stats(all_messages)
     except (KeyError, TypeError, ValueError) as exc:
         raise HTTPException(status_code=422, detail=f"Invalid conversation format: {exc}") from exc
 
@@ -50,6 +50,7 @@ async def import_conversations(
         "global_stats": global_stats,
         "conversation_stats": conversation_stats,
         "model_stats": model_stats,
+        "time_stats": time_stats,
         "meta": {
             "conversations_received": len(data),
             "messages_parsed": len(all_messages),

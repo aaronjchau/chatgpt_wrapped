@@ -18,6 +18,7 @@ def _valid_conversations_payload():
                         "author": {"role": "user"},
                         "content": {"parts": ["hello there"]},
                         "metadata": {},
+                        "create_time": 1735776000,
                     }
                 },
                 "node-assistant": {
@@ -25,6 +26,7 @@ def _valid_conversations_payload():
                         "author": {"role": "assistant"},
                         "content": {"parts": ["hi"]},
                         "metadata": {"model_slug": "gpt-4o"},
+                        "create_time": 1735776015,
                     }
                 },
             },
@@ -49,6 +51,7 @@ def test_import_conversations_happy_path():
     assert "global_stats" in body
     assert "conversation_stats" in body
     assert "model_stats" in body
+    assert "time_stats" in body
     assert "meta" in body
 
 
@@ -108,3 +111,35 @@ def test_import_conversations_allows_localhost_origin():
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
+
+
+def test_import_conversations_returns_time_stats():
+    payload = _valid_conversations_payload()
+    files = {
+        "file": (
+            "conversations.json",
+            json.dumps(payload),
+            "application/json",
+        )
+    }
+
+    response = client.post("/api/v1/import/conversations", files=files)
+
+    assert response.status_code == 200
+    body = response.json()
+    time_stats = body["time_stats"]
+
+    assert "msgs_sent_by_hour" in time_stats
+    assert "msgs_sent_by_day" in time_stats
+    assert "msgs_sent_by_month" in time_stats
+    assert "msgs_sent_by_year" in time_stats
+    assert "msgs_sent_rolling_12mo" in time_stats
+
+    assert sum(time_stats["msgs_sent_by_hour"].values()) == 1
+    assert sum(time_stats["msgs_sent_by_day"].values()) == 1
+    assert sum(time_stats["msgs_sent_by_month"].values()) == 1
+    assert sum(time_stats["msgs_sent_by_year"].values()) == 1
+
+    rolling = time_stats["msgs_sent_rolling_12mo"]
+    assert len(rolling) == 365
+    assert sum(day["count"] for day in rolling) == 1

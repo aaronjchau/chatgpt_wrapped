@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 frontend/node_modules/
 frontend/dist/
+README_PRIVATE.md
 backend/tests/fixtures/
 backend/tests/explore_json.py
 backend/tests/trim_json.py

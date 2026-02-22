@@ -1,4 +1,6 @@
 <script>
+  import ModelUsageChart from "./lib/ModelUsageChart.svelte";
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
   let selectedFile = null;
@@ -7,6 +9,7 @@
   let successMessage = "";
   let importData = null;
   let globalStatsEntries = [];
+  let modelStats = {};
 
   const GLOBAL_STAT_LABELS = {
     total_convos: "total conversations",
@@ -61,6 +64,7 @@
   $: globalStatsEntries = importData?.global_stats
     ? Object.entries(importData.global_stats)
     : [];
+  $: modelStats = importData?.model_stats ?? {};
 </script>
 
 <main class="mx-auto min-h-screen max-w-5xl p-6">
@@ -116,5 +120,11 @@
         {/each}
       </div>
     </section>
+  {/if}
+
+  {#if Object.keys(modelStats).length > 0}
+    <div class="mt-6">
+      <ModelUsageChart {modelStats} />
+    </div>
   {/if}
 </main>

@@ -6,6 +6,15 @@
   let errorMessage = "";
   let successMessage = "";
   let importData = null;
+  let globalStatsEntries = [];
+
+  const GLOBAL_STAT_LABELS = {
+    total_convos: "total conversations",
+    total_msgs_sent: "messages sent",
+    total_msgs_recd: "messages received",
+    total_words_sent: "words sent",
+    total_words_recd: "words received",
+  };
 
   function onFileSelected(event) {
     const files = event.currentTarget.files;
@@ -48,6 +57,10 @@
       isImporting = false;
     }
   }
+
+  $: globalStatsEntries = importData?.global_stats
+    ? Object.entries(importData.global_stats)
+    : [];
 </script>
 
 <main class="mx-auto min-h-screen max-w-5xl p-6">
@@ -90,4 +103,18 @@
       </p>
     {/if}
   </section>
+
+  {#if globalStatsEntries.length > 0}
+    <section class="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+      <h2 class="text-lg font-semibold text-slate-100">global stats</h2>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {#each globalStatsEntries as [key, value]}
+          <article class="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <p class="text-xs uppercase tracking-wide text-slate-400">{GLOBAL_STAT_LABELS[key] ?? key}</p>
+            <p class="mt-1 text-2xl font-semibold text-slate-100">{value}</p>
+          </article>
+        {/each}
+      </div>
+    </section>
+  {/if}
 </main>

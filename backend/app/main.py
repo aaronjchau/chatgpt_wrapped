@@ -1,6 +1,6 @@
-from fastapi import FastAPI, APIRouter
-from app.api.routes import upload
+from fastapi import FastAPI
+from app.api.routes import import_data
 
 app = FastAPI(title="ChatGPT Wrapped")
 
-app.include_router(upload.router)
+app.include_router(import_data.router)

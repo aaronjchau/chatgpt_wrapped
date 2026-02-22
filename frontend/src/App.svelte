@@ -1,5 +1,7 @@
 <script>
   import ModelUsageChart from "./lib/ModelUsageChart.svelte";
+  import MessageTimeCharts from "./lib/MessageTimeCharts.svelte";
+  import RollingHeatmap from "./lib/RollingHeatmap.svelte";
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -10,6 +12,8 @@
   let importData = null;
   let globalStatsEntries = [];
   let modelStats = {};
+  let timeStats = {};
+  let rollingPoints = [];
 
   const GLOBAL_STAT_LABELS = {
     total_convos: "total conversations",
@@ -65,6 +69,8 @@
     ? Object.entries(importData.global_stats)
     : [];
   $: modelStats = importData?.model_stats ?? {};
+  $: timeStats = importData?.time_stats ?? {};
+  $: rollingPoints = timeStats?.msgs_sent_rolling_12mo ?? [];
 </script>
 
 <main class="mx-auto min-h-screen max-w-5xl p-6">
@@ -125,6 +131,18 @@
   {#if Object.keys(modelStats).length > 0}
     <div class="mt-6">
       <ModelUsageChart {modelStats} />
+    </div>
+  {/if}
+
+  {#if Object.keys(timeStats).length > 0}
+    <div class="mt-6">
+      <MessageTimeCharts {timeStats} />
+    </div>
+  {/if}
+
+  {#if rollingPoints.length > 0}
+    <div class="mt-6">
+      <RollingHeatmap points={rollingPoints} />
     </div>
   {/if}
 </main>

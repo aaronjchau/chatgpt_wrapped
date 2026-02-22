@@ -27,20 +27,20 @@
 
   function tileColor(count) {
     if (count === 0 || maxCount === 0) {
-      return "bg-slate-800";
+      return "bg-slate-800/80";
     }
 
     const intensity = count / maxCount;
     if (intensity < 0.25) {
-      return "bg-emerald-900";
+      return "bg-cyan-900";
     }
     if (intensity < 0.5) {
-      return "bg-emerald-700";
+      return "bg-cyan-700";
     }
     if (intensity < 0.75) {
-      return "bg-emerald-500";
+      return "bg-cyan-500";
     }
-    return "bg-emerald-300";
+    return "bg-cyan-300";
   }
 
   function showTooltip(event, tile) {
@@ -61,7 +61,7 @@
   }
 </script>
 
-<section class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+<section class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/30">
   <h2 class="text-lg font-semibold text-slate-100">rolling 12-month activity</h2>
 
   {#if tiles.length > 0}
@@ -75,7 +75,7 @@
           <button
             type="button"
             aria-label={`${tile.count} messages on ${formatDate(tile.date)}`}
-            class={`h-3 w-3 rounded-[3px] transition-transform hover:scale-125 ${tileColor(tile.count)}`}
+            class={`h-3 w-3 rounded-[3px] border border-slate-900/40 transition-transform hover:scale-125 focus-visible:scale-125 ${tileColor(tile.count)}`}
             style={`grid-column: ${tile.week + 1}; grid-row: ${tile.weekday + 1};`}
             on:mouseenter={(event) => showTooltip(event, tile)}
             on:mousemove={(event) => showTooltip(event, tile)}
@@ -88,7 +88,7 @@
 
         {#if tooltip}
           <div
-            class="pointer-events-none absolute z-10 rounded-md border border-slate-700 bg-slate-950/95 px-2 py-1 text-xs text-slate-100 shadow-lg"
+            class="pointer-events-none absolute z-10 rounded-md border border-slate-700 bg-slate-950/95 px-2 py-1 text-xs text-slate-100 shadow-lg shadow-slate-950/60"
             style={`left: ${tooltip.x}px; top: ${tooltip.y}px;`}
           >
             {tooltip.text}
@@ -98,11 +98,11 @@
     </div>
     <div class="mt-3 flex items-center gap-2 text-xs text-slate-400">
       <span>less</span>
-      <span class="h-3 w-3 rounded-[3px] bg-slate-800"></span>
-      <span class="h-3 w-3 rounded-[3px] bg-emerald-900"></span>
-      <span class="h-3 w-3 rounded-[3px] bg-emerald-700"></span>
-      <span class="h-3 w-3 rounded-[3px] bg-emerald-500"></span>
-      <span class="h-3 w-3 rounded-[3px] bg-emerald-300"></span>
+      <span class="h-3 w-3 rounded-[3px] bg-slate-800/80"></span>
+      <span class="h-3 w-3 rounded-[3px] bg-cyan-900"></span>
+      <span class="h-3 w-3 rounded-[3px] bg-cyan-700"></span>
+      <span class="h-3 w-3 rounded-[3px] bg-cyan-500"></span>
+      <span class="h-3 w-3 rounded-[3px] bg-cyan-300"></span>
       <span>more</span>
     </div>
   {:else}

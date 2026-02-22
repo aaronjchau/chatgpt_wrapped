@@ -41,7 +41,9 @@
           {
             label: "messages",
             data: sortedEntries.map(([, count]) => count),
-            backgroundColor: "rgba(56, 189, 248, 0.85)",
+            backgroundColor: "rgba(14, 165, 233, 0.75)",
+            borderColor: "rgba(56, 189, 248, 1)",
+            borderWidth: 1,
             borderRadius: 6,
           },
         ],
@@ -52,6 +54,11 @@
         plugins: {
           tooltip: {
             displayColors: false,
+            backgroundColor: "rgba(15, 23, 42, 0.98)",
+            borderColor: "rgba(51, 65, 85, 0.9)",
+            borderWidth: 1,
+            titleColor: "rgb(248, 250, 252)",
+            bodyColor: "rgb(226, 232, 240)",
           },
         },
         scales: {
@@ -59,12 +66,16 @@
             beginAtZero: true,
             ticks: {
               precision: 0,
+              color: "rgb(148, 163, 184)",
             },
             grid: {
-              color: "rgba(148, 163, 184, 0.15)",
+              color: "rgba(71, 85, 105, 0.3)",
             },
           },
           x: {
+            ticks: {
+              color: "rgb(148, 163, 184)",
+            },
             grid: {
               display: false,
             },
@@ -81,7 +92,7 @@
   });
 </script>
 
-<section class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+<section class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/30">
   <h2 class="text-lg font-semibold text-slate-100">model usage</h2>
   <div class="mt-4 h-72">
     {#if sortedEntries.length > 0}
